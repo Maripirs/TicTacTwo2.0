@@ -1,4 +1,3 @@
-
 /*
 Game Logic for Tic Tac Toe accross browsers
 Author: Maripi Maluenda
@@ -7,14 +6,31 @@ Description: Simple game logic for tic tac toe game in two separate browser inst
 */
 
 /**
-     * Applies the chosen move to the 
-     * @param {Object} boardState - The current state of the game
-     * @param {string} player - 'X' for human or 'O' for computer
-     * @returns {[number, number]} Coordenates of the cell to either block or complete the line
-     */
-export function makeMove(boardState, r, c) {
-    boardState.turn = boardState.turn +1;
-    boardState.currentPlayer = boardState.currentPlayer == 'O' ? 'X': 'O'
+ * Applies the chosen move to the
+ * @param {Object} boardState - The current state of the game
+ * @param {string} player - 'X' for human or 'O' for computer
+ * @returns {[number, number]} Coordenates of the cell to either block or complete the line
+ */
+export function makeMove(boardState, r, c, windowState) {
+    if (boardState.currentPlayer != windowState.thisPlayer) {
+        console.log("It's not your turn");
+        return false;
+    }
+    if (boardState.win.over) {
+        console.log("Game is over");
+        return false;
+    }
+    if (boardState.board[r][c] != 0) {
+        console.log("That cell is not available ");
+        return false;
+    }
+    console.log("Doing a turn properly")
+    windowState.forceCheck = true;
+    boardState.board[r][c] = windowState.thisPlayer;
+    boardState.turn = boardState.turn + 1;
+    boardState.currentPlayer = boardState.currentPlayer == "O" ? "X" : "O";
+
+    return true;
 }
 /**
  * Checks if the given player has won the came
@@ -23,6 +39,7 @@ export function makeMove(boardState, r, c) {
  * @returns {void} updated boardState.win based on findings
  */
 export function checkWin(boardSt, player) {
+    console.log("Checking Win");
     let numRows = boardSt.size;
     let complete = true;
 
@@ -61,7 +78,7 @@ export function checkWin(boardSt, player) {
     }
     if (complete) {
         boardSt.win = { direction: "d", location: 0, over: true };
-        return boardSt
+        return boardSt;
     }
     complete = true;
     for (let j = 0; j < numRows; j++) {
@@ -72,7 +89,7 @@ export function checkWin(boardSt, player) {
     }
     if (complete) {
         boardSt.win = { direction: "u", location: 0, over: true };
-        return boardSt
+        return boardSt;
     }
     if (boardSt.turn == 9) {
         boardSt.win = { direction: "n", location: 0, over: true };
@@ -80,6 +97,4 @@ export function checkWin(boardSt, player) {
     return boardSt;
 }
 
-export function diceRoll(){
-    
-}
+export function diceRoll() {}

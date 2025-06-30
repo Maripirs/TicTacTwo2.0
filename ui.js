@@ -1,15 +1,17 @@
-import { choseFile } from "./states.js";
-
 /*
 UI for Tic Tac Toe accross browsers
 Author: Maripi Maluenda
 Date: June 29 2025
 Description: Simple UI for tic tac toe game in two separate browser instances
 */
-const handleCreateFile = () => {
-    choseFile(gameState, windowState);
-};
-export function drawBoard(boardState) {
+
+export function drawBoard(
+    boardState,
+    handleCellClick,
+    handleClear,
+    messages,
+    windowState
+) {
     function drawWin(htmlElement, boardState) {
         if (boardState.win.direction == "n") {
             let fullBoard = document.getElementById("board");
@@ -46,16 +48,17 @@ export function drawBoard(boardState) {
             return;
         }
     }
-
+    console.log("Drawing board");
     let htmlElement = {
         cells: [],
         msg: document.getElementById("msg"),
+        player: document.getElementById("player"),
     };
     let numRows = boardState.size;
     htmlElement.cells = Array.from({ length: numRows }, () =>
         Array(numRows).fill(null)
     );
-
+    player.innerHTML = `You are playing as: ${windowState.thisPlayer}`;
     const board = document.getElementById("board");
     board.innerHTML = "";
     board.style.gridTemplateColumns = `repeat(${numRows}, 1fr)`;
@@ -68,7 +71,7 @@ export function drawBoard(boardState) {
             const cell = document.createElement("div");
             cell.setAttribute("role", "button");
             cell.addEventListener("click", () => {
-                console.log("Hi, just clicking");
+                handleCellClick(i, j, boardState, windowState, handleCellClick);
             });
             //Find edges
             if (i == 0) cell.classList.add("top");
@@ -88,13 +91,27 @@ export function drawBoard(boardState) {
             htmlElement.cells[i][j] = cell;
         }
     }
-    htmlElement.msg.innerHTML = "";
+    htmlElement.msg.innerHTML = chooseMessage(
+        boardState,
+        windowState,
+        messages
+    );
     if (boardState.win.over) {
         drawWin(htmlElement, boardState);
     }
+    btn.innerHTML = "Clear";
+    btn.onClick = handleClear;
+    btn.disabled = false;
 }
 
 export function drawDiceRoll(handleDiceGuess, windowState, gameState) {
+    if (windowState.guessed) {
+        if (gameState.guess1) {
+            return;
+        } else {
+            windowState.guessed = false;
+        }
+    }
     const board = document.getElementById("board");
     let btn = document.getElementById("btn");
     btn.remove();
@@ -124,20 +141,40 @@ export function drawDiceRoll(handleDiceGuess, windowState, gameState) {
     msg.innerHTML = "Enter your guess for the dice roll";
 }
 
-export function drawStartScreeen(choseFile, gameState, windowState) {
+export function drawStartScreeen(openFile, createFile, gameState, windowState) {
     const msg = document.getElementById("msg");
     const btn = document.getElementById("btn");
+    const btn2 = document.getElementById("btn2");
+    btn2.classList.remove("hidden");
+
+    btn2.innerHTML = "Join Game";
     const board = document.getElementById("board");
     board.classList.add("hidden");
-    msg.innerHTML = "In order to play. Please create or open the required file";
-    btn.innerHTML = "Choose File";
+    msg.innerHTML = "In order to play. Please create or join a game";
+    btn.innerHTML = "Create Game";
     btn.addEventListener("click", async () => {
-        await choseFile(gameState, windowState);
+        await createFile(gameState, windowState);
+    });
+    btn2.addEventListener("click", async () => {
+        await openFile(gameState, windowState);
     });
 }
 
-export function drawRolled(gameState,  windowState){
-    const msg = document.getElementById("msg");
-    const btn = document.getElementById("btn");
-    msg.innerHTML = "It was a tie, try again"
+function chooseMessage(boardState, windowState, messages) {
+    console.log(messages);
+    if (boardState.win.over) {
+        if (boardState.win.direction == "n") {
+            return messages.tie;
+        }
+        if (boardState.currentPlayer == windowState.thisPlayer) {
+            return messages.oWin;
+        } else {
+            return messages.pWin;
+        }
+    }
+    if (boardState.currentPlayer == windowState.thisPlayer) {
+        return messages.active;
+    } else {
+        return messages.opponent;
+    }
 }
