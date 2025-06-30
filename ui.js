@@ -96,7 +96,9 @@ export function drawBoard(boardState) {
 
 export function drawDiceRoll(handleDiceGuess, windowState, gameState) {
     const board = document.getElementById("board");
-    const btn = document.createElement("button");
+    let btn = document.getElementById("btn");
+    btn.remove();
+    btn = document.createElement("button");
     btn.setAttribute("id", "btn");
     const inp = document.createElement("input");
     document.body.appendChild(btn);
@@ -123,17 +125,19 @@ export function drawDiceRoll(handleDiceGuess, windowState, gameState) {
 }
 
 export function drawStartScreeen(choseFile, gameState, windowState) {
-    console.log("Load Screen");
     const msg = document.getElementById("msg");
     const btn = document.getElementById("btn");
     const board = document.getElementById("board");
     board.classList.add("hidden");
-    msg.innerHTML = "In order to play. Please create the required file";
-    btn.innerHTML = "Create File";
+    msg.innerHTML = "In order to play. Please create or open the required file";
+    btn.innerHTML = "Choose File";
     btn.addEventListener("click", async () => {
         await choseFile(gameState, windowState);
-        if (windowState.fileOpened) {
-            btn.remove();
-        }
     });
+}
+
+export function drawRolled(gameState,  windowState){
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btn");
+    msg.innerHTML = "It was a tie, try again"
 }

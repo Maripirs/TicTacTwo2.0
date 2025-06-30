@@ -13,4 +13,5 @@ export const defaultGameState = {
     diceRoll: null,
     guess1: null,
     guess2: null,
+    fileOpened: 0
 };

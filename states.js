@@ -1,3 +1,5 @@
+import { defaultGameState } from "./startDefault.js";
+
 /*
 API managment for Tic Tac Toe accross browsers
 Author: Maripi Maluenda
@@ -7,13 +9,14 @@ Description: File System Access API for tic tac toe game in two separate browser
 let fileHandle = null;
 export async function loadState(gameState) {
     if (!fileHandle) {
-        return;
+        return gameState;
     }
     const file = await fileHandle.getFile();
     const content = await file.text();
     try {
-        return text.trim() ? JSON.parse(text) : gameState;
+        return content.trim() ? JSON.parse(content) : gameState;
     } catch {
+        console.warn("failed parse");
         return gameState;
     }
 }
@@ -29,20 +32,34 @@ export async function saveState(gameState) {
 
 export async function choseFile(gameState, windowState) {
     //https://developer.chrome.com/docs/capabilities/web-apis/file-system-access
-    console.log(gameState);
-    console.log("Fucntion choseFIle called");
-    fileHandle = await window.showSaveFilePicker({
-        suggestedName: "gameState.json",
-        types: [
-            {
-                description: "Gamestate",
-                accept: {
-                    "application/json": [".json"],
+    try {
+        [fileHandle] = await window.showOpenFilePicker({
+            types: [
+                {
+                    description: "Game State",
+                    accept: {
+                        "application/json": [".json"],
+                    },
                 },
-            },
-        ],
-    });
+            ],
+        });
+    } catch (err) {
+        fileHandle = await window.showSaveFilePicker({
+            suggestedName: "gameState.json",
+            types: [
+                {
+                    description: "Game State",
+                    accept: {
+                        "application/json": [".json"],
+                    },
+                },
+            ],
+        });
+        await saveState(defaultGameState);
+    }
 
+    gameState.fileOpened = gameState.fileOpened + 1;
+    windowState.thisWindow = gameState.fileOpened;
     const writable = await fileHandle.createWritable();
     await writable.write({
         type: "write",
@@ -56,5 +73,4 @@ export async function choseFile(gameState, windowState) {
     console.log(content);
     windowState.fileOpened = true;
     console.log(windowState);
-    
 }

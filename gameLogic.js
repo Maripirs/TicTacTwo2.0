@@ -79,3 +79,7 @@ export function checkWin(boardSt, player) {
     }
     return boardSt;
 }
+
+export function diceRoll(){
+    
+}
